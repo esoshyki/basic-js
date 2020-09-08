@@ -3,6 +3,11 @@ const CustomError = require("../extensions/custom-error");
 const isLetter = char => char.charCodeAt() >= 65 && char.charCodeAt() <= 90
 
 class VigenereCipheringMachine {
+
+  constructor (isDirect) {
+    this.isDirect = isDirect === false ? false : true
+  }
+
   encrypt(_text, _key) {
     const startCharCode = 'A'.charCodeAt();
     const text = _text.toUpperCase();
@@ -15,13 +20,15 @@ class VigenereCipheringMachine {
         indexCorrect -= 1;
         return char
       }
-      if (!isLetter(char)) return char
+      if (!isLetter(char)) {
+        return char }
+
       const textCharCode = char.charCodeAt() - startCharCode;
       const keyCharCode = key[(idx + indexCorrect) % keylength].charCodeAt() - startCharCode;
-      const newCharCode = startCharCode + ((textCharCode + keyCharCode) % 26);
+      const newCharCode = startCharCode + ((textCharCode + keyCharCode) % 26); // (cipher - key + 26) % 26;
       return String.fromCharCode(newCharCode)
     }).join('')
-    return res
+    return this.isDirect ? res : res.split('').reverse().join('')
   }    
   decrypt(_text, _key) {
     const endCharCode = 'Z'.charCodeAt();
@@ -36,16 +43,17 @@ class VigenereCipheringMachine {
         indexCorrect -= 1;
         return char
       }
-      if (!isLetter(char)) return char
+      if (!isLetter(char)) {
+        return char }
       const textCharCode = char.charCodeAt() - startCharCode;
       const keyCharCode = key[(idx + indexCorrect) % keylength].charCodeAt() - startCharCode;
       const between = textCharCode - keyCharCode
       if (between === 0) return 'A'
 
-      const newCharCode = between > 0 ? startCharCode + (between % 26) : endCharCode + ((between + 1) % 26);
+      const newCharCode = between >= 0 ? startCharCode + between  : endCharCode + between + 1;
       return String.fromCharCode(newCharCode)
     }).join('')
-    return res
+    return this.isDirect ? res : res.split('').reverse().join('')
   }
 }
 
